@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI):
             worker_thread = None
 
 
-app = FastAPI(title='Pakistan PlotWatch API', version='5.0', docs_url=None, redoc_url=None, lifespan=lifespan)
+app = FastAPI(title="Pakistan PlotWatch API",version="5.0",docs_url="/docs",redoc_url="/redoc",lifespan=lifespan)
 
 
 def auth(authorization: Annotated[str | None, Header()] = None):
