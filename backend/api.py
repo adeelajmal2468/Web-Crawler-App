@@ -8,7 +8,8 @@ import hmac
 import os
 from contextlib import asynccontextmanager
 from typing import Annotated
-from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from threading import Thread, Event
 import logging
@@ -52,16 +53,23 @@ async def lifespan(app: FastAPI):
             worker_thread = None
 
 
-app = FastAPI(title="Pakistan PlotWatch API",version="5.0",docs_url="/docs",redoc_url="/redoc",lifespan=lifespan)
+app = FastAPI(
+    title="Pakistan PlotWatch API",
+    version="5.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan,
+)
 
 
-def auth(authorization: Annotated[str | None, Header()] = None):
-    expected = os.getenv('PLOTWATCH_APP_TOKEN', '').strip()
-    supplied = ''
-    if authorization and authorization.startswith('Bearer '):
-        supplied = authorization[7:].strip()
+bearer_scheme = HTTPBearer(auto_error=False)
+
+
+def auth(credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)]):
+    expected = os.getenv("PLOTWATCH_APP_TOKEN", "").strip()
+    supplied = credentials.credentials.strip() if credentials is not None else ""
     if not expected or not hmac.compare_digest(supplied, expected):
-        raise HTTPException(status_code=401, detail='Invalid or missing access token')
+        raise HTTPException(status_code=401, detail="Invalid or missing access token")
     return True
 
 
