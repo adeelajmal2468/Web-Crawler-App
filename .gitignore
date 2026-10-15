@@ -1,0 +1,14 @@
+.env
+**/.env
+**/__pycache__/
+**/.venv/
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/build/
+**/.gradle/
+**/.local-gradle/
+**/local.properties
+**/.idea/
+*.apk
+*.zip
